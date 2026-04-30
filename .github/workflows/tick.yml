@@ -80,7 +80,7 @@ jobs:
           AGENTWALLET_API_TOKEN: ${{ secrets.AGENTWALLET_API_TOKEN }}
         timeout-minutes: 55
         run: |
-          opencode run --print-logs "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
+          opencode run --dangerously-skip-permissions --print-logs "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
 
       - name: Regenerate index
         run: frame project datasets/${{ matrix.dataset }}
