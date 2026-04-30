@@ -18,11 +18,11 @@ fields:
   access:
     type: string
   context_window:
-    type: number
+    type: int
   parameters:
     type: string
   benchmark_score:
-    type: number
+    type: float
   benchmark_name:
     type: string
   announcement_url:
