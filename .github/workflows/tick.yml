@@ -34,6 +34,11 @@ jobs:
       - name: Install OpenCode
         run: curl -fsSL https://opencode.ai/install | bash
 
+      - name: Install frame CLI
+        # install once globally so better-sqlite3 native binding builds reliably
+        # (npx -y can skip postinstall and leave the binding missing)
+        run: npm i -g @frames-ag/frame@latest
+
       - name: Install skills
         run: |
           npx skills add https://github.com/frames-engineering/skills --skill agentwallet -y
@@ -78,7 +83,7 @@ jobs:
           opencode run --print-logs "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
 
       - name: Regenerate index
-        run: npx -y @frames-ag/frame project datasets/${{ matrix.dataset }}
+        run: frame project datasets/${{ matrix.dataset }}
 
       - name: Commit changes
         run: |
