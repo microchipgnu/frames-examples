@@ -14,7 +14,7 @@ fields:
   description:
     type: string
   stars:
-    type: number
+    type: int
   language:
     type: string
   category:
