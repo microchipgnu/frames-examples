@@ -18,7 +18,7 @@ fields:
   target_date:
     type: string
   shipped:
-    type: boolean
+    type: bool
   shipped_at:
     type: string
   evidence_url:
