@@ -1,0 +1,56 @@
+name: tick
+
+on:
+  schedule:
+    # daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Dataset to tick (or 'all')"
+        required: false
+        default: "all"
+
+permissions:
+  contents: write
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dataset: [mcp-servers, ai-promises, ai-models]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install opencode
+        run: npm i -g opencode-ai
+
+      - name: Tick ${{ matrix.dataset }}
+        if: ${{ github.event.inputs.dataset == '' || github.event.inputs.dataset == 'all' || github.event.inputs.dataset == matrix.dataset }}
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          AGENTWALLET_PRIVATE_KEY: ${{ secrets.AGENTWALLET_PRIVATE_KEY }}
+          AGENTWALLET_ADDRESS: ${{ secrets.AGENTWALLET_ADDRESS }}
+        run: |
+          opencode run "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
+
+      - name: Regenerate index
+        run: npx -y @frames-ag/frame project datasets/${{ matrix.dataset }}
+
+      - name: Commit changes
+        run: |
+          git config user.name "frames-bot"
+          git config user.email "frames-bot@users.noreply.github.com"
+          git add datasets/${{ matrix.dataset }}/events.ndjson \
+                  datasets/${{ matrix.dataset }}/.frame || true
+          if ! git diff --cached --quiet; then
+            git commit -m "tick(${{ matrix.dataset }}): $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase
+            git push
+          fi

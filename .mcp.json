@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "frame-ai-models": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/ai-models"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
+    "frame-ai-promises": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/ai-promises"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
+    "frame-mcp-servers": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/mcp-servers"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    }
+  }
+}
