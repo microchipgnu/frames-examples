@@ -17,40 +17,75 @@ permissions:
 jobs:
   tick:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         dataset: [mcp-servers, ai-promises, ai-models]
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
-      - name: Install opencode
-        run: npm i -g opencode-ai
+      - name: Install OpenCode
+        run: curl -fsSL https://opencode.ai/install | bash
+
+      - name: Install skills
+        run: |
+          npx skills add https://github.com/frames-engineering/skills --skill agentwallet -y
+          npx skills add https://github.com/frames-engineering/skills --skill registry -y
+
+      - name: Setup credentials
+        env:
+          AGENTWALLET_USERNAME: ${{ secrets.AGENTWALLET_USERNAME }}
+          AGENTWALLET_API_TOKEN: ${{ secrets.AGENTWALLET_API_TOKEN }}
+        run: |
+          for secret in "$AGENTWALLET_USERNAME" "$AGENTWALLET_API_TOKEN"; do
+            if [ -n "$secret" ]; then
+              echo "::add-mask::$secret"
+            fi
+          done
+
+          mkdir -p ~/.agentwallet
+          printf '{"username":"%s","apiToken":"%s"}' "$AGENTWALLET_USERNAME" "$AGENTWALLET_API_TOKEN" > ~/.agentwallet/config.json
+          chmod 600 ~/.agentwallet/config.json
+
+          mkdir -p .agentwallet
+          cp ~/.agentwallet/config.json .agentwallet/config.json
+          chmod 600 .agentwallet/config.json
+
+          export FRAMES_API_KEY="${AGENTWALLET_USERNAME}:${AGENTWALLET_API_TOKEN}"
+          echo "FRAMES_API_KEY=$FRAMES_API_KEY" >> $GITHUB_ENV
+          echo "::add-mask::$FRAMES_API_KEY"
+
+      - name: Configure git
+        run: |
+          git config user.name "frames-bot"
+          git config user.email "frames-bot@users.noreply.github.com"
 
       - name: Tick ${{ matrix.dataset }}
         if: ${{ github.event.inputs.dataset == '' || github.event.inputs.dataset == 'all' || github.event.inputs.dataset == matrix.dataset }}
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          AGENTWALLET_PRIVATE_KEY: ${{ secrets.AGENTWALLET_PRIVATE_KEY }}
-          AGENTWALLET_ADDRESS: ${{ secrets.AGENTWALLET_ADDRESS }}
+          AGENTWALLET_USERNAME: ${{ secrets.AGENTWALLET_USERNAME }}
+          AGENTWALLET_API_TOKEN: ${{ secrets.AGENTWALLET_API_TOKEN }}
+        timeout-minutes: 55
         run: |
-          opencode run "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
+          opencode run --print-logs "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
 
       - name: Regenerate index
         run: npx -y @frames-ag/frame project datasets/${{ matrix.dataset }}
 
       - name: Commit changes
         run: |
-          git config user.name "frames-bot"
-          git config user.email "frames-bot@users.noreply.github.com"
           git add datasets/${{ matrix.dataset }}/events.ndjson \
                   datasets/${{ matrix.dataset }}/.frame || true
           if ! git diff --cached --quiet; then
             git commit -m "tick(${{ matrix.dataset }}): $(date -u +%Y-%m-%dT%H:%MZ)"
-            git pull --rebase
+            git pull --rebase || true
             git push
           fi
