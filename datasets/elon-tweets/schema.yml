@@ -17,7 +17,7 @@ fields:
     type: url
   topic:
     type: enum
-    enum: [tesla, spacex, xai, x-platform, ai, politics, doge, neuralink, boring-co, personal, meme, reply, news-commentary, business, science, other]
+    values: [tesla, spacex, xai, x-platform, ai, politics, doge, neuralink, boring-co, personal, meme, reply, news-commentary, business, science, other]
   is_reply:
     type: bool
   is_retweet:
