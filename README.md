@@ -18,6 +18,7 @@ Three datasets, each in its own directory under `datasets/`:
 | [`mcp-servers`](datasets/mcp-servers) | Every notable MCP server on GitHub. Recursive: frames cataloging the protocol it speaks. |
 | [`ai-promises`](datasets/ai-promises) | Public roadmap commitments by AI labs, with a `shipped?` column. |
 | [`ai-models`](datasets/ai-models) | Every notable model release, every vendor, every modality. |
+| [`elon-tweets`](datasets/elon-tweets) | Recent posts from @elonmusk on X, classified by topic. |
 
 Each dataset is a self-contained frame: `schema.yml` (the contract),
 `prompt.md` (the maintenance loop), `events.ndjson` (the append-only log),

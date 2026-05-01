@@ -13,6 +13,10 @@
     "frame-ai-models": {
       "type": "local",
       "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/ai-models"]
+    },
+    "frame-elon-tweets": {
+      "type": "local",
+      "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/elon-tweets"]
     }
   }
 }

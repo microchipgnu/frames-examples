@@ -24,6 +24,18 @@
         "FRAME_AGENT": "claude:opus-4.7"
       }
     },
+    "frame-elon-tweets": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/elon-tweets"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
     "frame-mcp-servers": {
       "command": "npx",
       "args": [
