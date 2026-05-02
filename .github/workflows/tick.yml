@@ -37,7 +37,7 @@ jobs:
       - name: Install frame CLI
         # install once globally so better-sqlite3 native binding builds reliably
         # (npx -y can skip postinstall and leave the binding missing)
-        run: npm i -g @frames-ag/frame@latest
+        run: npm i -g @frames-ag/frame@^0.0.4
 
       - name: Install skills
         run: |
@@ -73,6 +73,7 @@ jobs:
           git config user.email "frames-bot@users.noreply.github.com"
 
       - name: Tick ${{ matrix.dataset }}
+        id: tick
         if: ${{ github.event.inputs.dataset == '' || github.event.inputs.dataset == 'all' || github.event.inputs.dataset == matrix.dataset }}
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -82,15 +83,57 @@ jobs:
         run: |
           opencode run --dangerously-skip-permissions --print-logs "$(cat datasets/${{ matrix.dataset }}/prompt.md)"
 
-      - name: Regenerate index
-        run: frame project datasets/${{ matrix.dataset }}
+      # Verify the events log is referentially sound before projecting.
+      # continue-on-error: a bad log must not skip the events.ndjson commit below
+      # (preserving work is the whole point — a corrupt log is debuggable later).
+      - name: Verify events
+        id: verify
+        if: steps.tick.outcome == 'success'
+        continue-on-error: true
+        run: frame verify datasets/${{ matrix.dataset }}
 
-      - name: Commit changes
+      # events.ndjson is the protocol-declared source of truth. Commit it before
+      # attempting projection so a downstream failure cannot lose the agent's work.
+      - name: Commit events.ndjson
+        if: steps.tick.outcome == 'success'
         run: |
-          git add datasets/${{ matrix.dataset }}/events.ndjson \
-                  datasets/${{ matrix.dataset }}/.frame || true
+          git add datasets/${{ matrix.dataset }}/events.ndjson || true
           if ! git diff --cached --quiet; then
-            git commit -m "tick(${{ matrix.dataset }}): $(date -u +%Y-%m-%dT%H:%MZ)"
+            git commit -m "tick(${{ matrix.dataset }}): events $(date -u +%Y-%m-%dT%H:%MZ)"
             git pull --rebase || true
             git push
           fi
+
+      - name: Regenerate index
+        id: project
+        if: steps.verify.outcome == 'success'
+        run: frame project datasets/${{ matrix.dataset }}
+
+      - name: Commit projection
+        if: steps.project.outcome == 'success'
+        run: |
+          git add datasets/${{ matrix.dataset }}/.frame || true
+          if ! git diff --cached --quiet; then
+            git commit -m "tick(${{ matrix.dataset }}): projection $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase || true
+            git push
+          fi
+
+      # On verify or project failure, save the runner's events.ndjson as an
+      # artifact so the next failure is debuggable (the May 2 incident vanished
+      # because the runner's working copy was wiped before anything was uploaded).
+      - name: Upload events.ndjson on failure
+        if: ${{ steps.tick.outcome == 'success' && (steps.verify.outcome == 'failure' || steps.project.outcome == 'failure') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: events-${{ matrix.dataset }}-${{ github.run_id }}
+          path: datasets/${{ matrix.dataset }}/events.ndjson
+          if-no-files-found: warn
+
+      # Surface verify/project failures as job failures so they're visible in the
+      # UI. The events commit above already ran, so work is preserved either way.
+      - name: Report failure
+        if: ${{ steps.tick.outcome == 'success' && (steps.verify.outcome == 'failure' || steps.project.outcome == 'failure') }}
+        run: |
+          echo "::error::verify=${{ steps.verify.outcome }} project=${{ steps.project.outcome }} — events.ndjson committed; projection is stale until fixed"
+          exit 1
