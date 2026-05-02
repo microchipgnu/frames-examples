@@ -37,7 +37,7 @@ jobs:
       - name: Install frame CLI
         # install once globally so better-sqlite3 native binding builds reliably
         # (npx -y can skip postinstall and leave the binding missing)
-        run: npm i -g @frames-ag/frame@^0.0.4
+        run: npm i -g @frames-ag/frame@latest
 
       - name: Install skills
         run: |
