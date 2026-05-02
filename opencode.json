@@ -10,6 +10,14 @@
       "type": "local",
       "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/ai-promises"]
     },
+    "frame-blindspot-briefs": {
+      "type": "local",
+      "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/blindspot-briefs"]
+    },
+    "frame-blindspot-threads": {
+      "type": "local",
+      "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/blindspot-threads"]
+    },
     "frame-ai-models": {
       "type": "local",
       "command": ["npx", "-y", "@frames-ag/frame", "serve", "datasets/ai-models"]

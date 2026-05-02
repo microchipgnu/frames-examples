@@ -11,7 +11,7 @@ git history doubles as an audit log.
 
 ## What's here
 
-Three datasets, each in its own directory under `datasets/`:
+Datasets, each in its own directory under `datasets/`:
 
 | Dataset | What it tracks |
 |---|---|
@@ -19,6 +19,8 @@ Three datasets, each in its own directory under `datasets/`:
 | [`ai-promises`](datasets/ai-promises) | Public roadmap commitments by AI labs, with a `shipped?` column. |
 | [`ai-models`](datasets/ai-models) | Every notable model release, every vendor, every modality. |
 | [`elon-tweets`](datasets/elon-tweets) | Recent posts from @elonmusk on X, classified by topic. |
+| [`blindspot-briefs`](datasets/blindspot-briefs) | Daily 8-section analytical briefs on yesterday's news. |
+| [`blindspot-threads`](datasets/blindspot-threads) | Non-obvious connections across each day's briefs. |
 
 Each dataset is a self-contained frame: `schema.yml` (the contract),
 `prompt.md` (the maintenance loop), `events.ndjson` (the append-only log),

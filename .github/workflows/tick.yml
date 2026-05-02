@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dataset: [mcp-servers, ai-promises, ai-models, elon-tweets]
+        dataset: [mcp-servers, ai-promises, ai-models, elon-tweets, blindspot-briefs, blindspot-threads]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +43,7 @@ jobs:
         run: |
           npx skills add https://github.com/frames-engineering/skills --skill agentwallet -y
           npx skills add https://github.com/frames-engineering/skills --skill registry -y
+          npx skills add https://github.com/microchipgnu/blindspot.news --skill analysis -y
 
       - name: Setup credentials
         env:

@@ -24,6 +24,30 @@
         "FRAME_AGENT": "claude:opus-4.7"
       }
     },
+    "frame-blindspot-briefs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/blindspot-briefs"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
+    "frame-blindspot-threads": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/blindspot-threads"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
     "frame-elon-tweets": {
       "command": "npx",
       "args": [
