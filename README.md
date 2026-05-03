@@ -21,6 +21,7 @@ Datasets, each in its own directory under `datasets/`:
 | [`elon-tweets`](datasets/elon-tweets) | Recent posts from @elonmusk on X, classified by topic. |
 | [`blindspot-briefs`](datasets/blindspot-briefs) | Daily 8-section analytical briefs on yesterday's news. |
 | [`blindspot-threads`](datasets/blindspot-threads) | Non-obvious connections across each day's briefs. |
+| [`agent-networks`](datasets/agent-networks) | Open questions on the agent / machine-network economy, with rolling evidence. |
 
 Each dataset is a self-contained frame: `schema.yml` (the contract),
 `prompt.md` (the maintenance loop), `events.ndjson` (the append-only log),

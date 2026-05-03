@@ -24,6 +24,18 @@
         "FRAME_AGENT": "claude:opus-4.7"
       }
     },
+    "frame-agent-networks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/agent-networks"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
     "frame-blindspot-briefs": {
       "command": "npx",
       "args": [
