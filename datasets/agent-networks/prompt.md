@@ -19,8 +19,9 @@ Tools:
    questions from the list at the bottom of this prompt. For each, call
    `add_entity_with_facts`:
    - `entity_id`: the slug listed.
-   - `source.url`: `https://github.com/microchipgnu/frames-examples`
-     (the dataset's origin).
+   - `source.url`:
+     `https://github.com/microchipgnu/frames-examples/commit/be7e142`
+     (the originating brain-dump that defined the canonical seed).
    - `source.retrieved_at`: now.
    - `facts`: `question`, `category`, `status: open`, and
      `last_reviewed_at` set to a timestamp in 1970 so first-tick refresh
@@ -47,8 +48,35 @@ Tools:
      `status` from `open` → `narrowing`, or `narrowing` → `resolved`.
    - Always `set_fact last_reviewed_at` to now (ISO 8601).
 
-5. **Stop.** Print: questions touched, status changes, new actors named,
-   total signals added.
+5. **Discover new questions.** After refresh, run **one** Exa pass over
+   the past 30 days across operator/analyst sources (a16z, USV, Stripe
+   blog, Substack essays from named operators, conference talks,
+   podcast transcripts, VC newsletters) looking for *open questions*
+   about agent networks that aren't already in the dataset. Bar for
+   admission:
+   - **≥2 distinct named operators or analysts** raising the same
+     question publicly within the last 90 days.
+   - The question is *open* — not a settled point, not a product pitch,
+     not a restatement of one of the 10 seeded.
+   - Fits an existing `category` (or, if not, use `other`).
+
+   If a candidate clears the bar, call `add_entity_with_facts` with:
+   - `entity_id`: a fresh slug (kebab-case, ≤ 40 chars).
+   - `source.url`: the URL of the *primary* source citing it.
+   - `facts`: `question`, `category`, `status: open`,
+     `key_actors` (newline-joined ≥ 2 names with their post URLs),
+     `recent_signals` (the 2+ posts that triggered admission),
+     `last_reviewed_at` = now.
+   - **At most 1 new question added per run.** If multiple candidates
+     clear the bar, take the strongest and let the rest wait.
+
+   The 10 canonical questions are **immutable** by the tick: never
+   reword, re-slug, or delete them. They may transition status (incl.
+   to `moot`), but the question text and entity_id are locked. New
+   discovered questions follow the same rule once admitted.
+
+6. **Stop.** Print: questions touched, status changes, new actors
+   named, total signals added, new question admitted (or "none").
 
 ## Constraints
 
@@ -62,11 +90,14 @@ Tools:
   history lives in git via `events.ndjson`.
 - Status transitions are sticky — only move `status` forward (or to
   `moot`); never back-revise without an explicit `attach_evidence` step.
-- ≤ 3 questions touched per run.
+- ≤ 3 questions touched per run + at most 1 newly admitted.
+- Question text is immutable once admitted. Reword via PR, never via
+  `set_fact`.
 
 ## Done when
 
 - The 3 chosen questions are refreshed (or seed step ran).
+- One discovery pass attempted (admit at most 1 new question).
 - Summary printed.
 
 ---

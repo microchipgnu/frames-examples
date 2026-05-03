@@ -22,8 +22,12 @@ needle?*
 
 - Generic AI commentary not tied to a network/economy claim.
 - Speculation without a named actor or shipped artifact.
-- Adding new questions ad-hoc. The canonical question list lives in
-  `prompt.md`. New questions go in via PR, not via a tick.
+- Reworking the 10 canonical questions. They are immutable — locked at
+  commit `be7e142`. They can transition status (including to `moot`),
+  but their text and entity_id never change without a PR.
+- Question additions outside the discovery bar. The tick may admit at
+  most 1 new question per run, and only when ≥ 2 distinct named
+  operators / analysts have raised it publicly within the last 90 days.
 
 ## Refresh policy
 
