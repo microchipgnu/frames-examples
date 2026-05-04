@@ -17,29 +17,20 @@ Tools:
    `SELECT entity_id, name, status, last_verified_at FROM rows
     ORDER BY COALESCE(last_verified_at, '1970-01-01') ASC`
 
-2. **Cold-start discovery (only if dataset is empty).** Run a broad Exa
-   sweep over the past 90 days for the seed terms below. Admit up to
-   **5 entities** in this single first run, each with a strong primary
-   source (vendor blog, GitHub release, official docs page):
-   - `"agent wallet" announcement`
-   - `"x402" registry`
-   - `"agent commerce" payment`
-   - `"machine payments" wallet`
-   - `agentwallet`, `agent registry`, `payments for agents`
-   Also explicitly check known starting points:
-   - **agentwallet** (`frames-engineering`) — the wallet wired into this
-     repo via `AGENTWALLET_USERNAME` / `AGENTWALLET_API_TOKEN`
-   - **Frames Registry** (`registry.frames.ag`) — service catalog used
-     by this repo
-   - **x402** (Coinbase) — payment protocol
-   For each admitted entity, set fields per step 4 below and stop.
-   Do not run step 3 on a cold start.
+2. **Cold-start discovery (only if dataset is empty).** Sweep the
+   discovery surfaces in the next subsection. Admit up to **5 entities**
+   in this single first run, each with a strong primary source. For
+   each admitted entity, set fields per step 4 and stop. Do not run
+   step 3 on a cold start.
 
-3. **Discover (steady state).** Run **one** Exa pass over the past 30
-   days searching for new wallets, registries, or payment protocols
-   not already in the dataset. Bar for admission:
-   - Primary source must be a vendor blog post, GitHub release,
-     official docs page, or filed announcement (no aggregator posts).
+3. **Discover (steady state).** Sweep the discovery surfaces below for
+   new wallets, registries, or payment protocols not already in the
+   dataset. Bar for admission:
+   - **Primary source must be vendor-controlled**: vendor blog post,
+     GitHub release, official docs page, or filed announcement.
+     Directory pages and Twitter posts are *discovery aids only* — they
+     point you at candidates, but the candidate must have a real vendor
+     source before admission.
    - The product must be **agent-targeted** — generic crypto wallets
      and stablecoin issuers don't qualify unless they ship an
      agent-specific surface.
@@ -47,6 +38,45 @@ Tools:
    `entity_id` format: `<vendor-slug>-<product-slug>`, collapsing when
    vendor and product are the same (e.g. `crossmint`, `skyfire`,
    `coinbase-x402`, `frames-engineering-agentwallet`).
+
+   **Discovery surfaces** (use ALL of them — directories first, since
+   they have the highest candidate density):
+
+   a. **Curated directories & ecosystem pages** — fetch via Exa or
+      direct HTTP, extract the list of named products, then go
+      validate each one against a vendor source:
+      - `https://agentpaymentsstack.com/`
+      - `https://x402.org/ecosystem`
+      - `https://github.com/topics/x402`
+      - `https://github.com/topics/agent-wallet`
+      - `https://github.com/topics/ai-agents` (filter for payment-
+        adjacent repos)
+      - Search for `awesome-x402`, `awesome-agent-payments`,
+        `awesome-agent-wallets` GitHub READMEs
+
+   b. **Twitter / X via the registry's Twitter service**
+      (`https://registry.frames.ag/api/service/twitter/api/search-tweets`,
+      paid via x402 / agentwallet). Search the past 30 days for:
+      - `"x402" launch since:<today-30d>`
+      - `"agent wallet" announcing since:<today-30d>`
+      - `"agent payments" shipping OR launching since:<today-30d>`
+      - `"agent commerce" since:<today-30d>`
+      Filter to *verified founders or vendor accounts* announcing
+      something material (no opinion threads, no analyst hot-takes).
+      Each tweet must link to a vendor blog/docs that becomes the
+      primary source.
+
+   c. **Exa keyword sweeps** (past 30 days):
+      - `"agent wallet" announcement`
+      - `"x402" registry`
+      - `"agent commerce" payment`
+      - `"machine payments" wallet`
+      - `agentwallet`, `agent registry`, `payments for agents`
+
+   d. **Cold-start anchors** (only on first run, in addition to the
+      above): explicitly check **agentwallet** (frames-engineering),
+      **Frames Registry** (`registry.frames.ag`), and **x402**
+      (Coinbase) regardless of whether they surface in the sweeps.
 
 4. **Refresh stalest 3.** Pick the 3 entities with the oldest
    `last_verified_at`. For each:
@@ -73,8 +103,10 @@ Tools:
 ## Constraints
 
 - Every fact must cite a vendor-controlled source (their blog, GitHub
-  release, official docs page, regulatory filing). No "according to a
-  thread" or aggregator-only sources.
+  release, official docs page, regulatory filing). Directories and
+  tweets are discovery aids, never fact sources — if you find a
+  candidate on agentpaymentsstack.com but can't reach a vendor page,
+  do not admit it.
 - Never invent endpoints. If a service's URL isn't on the vendor's
   docs page, omit it.
 - `services` field stores the **public** registry — paid endpoints
