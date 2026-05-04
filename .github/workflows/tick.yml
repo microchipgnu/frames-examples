@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dataset: [mcp-servers, ai-promises, ai-models, elon-tweets, blindspot-briefs, agent-networks]
+        dataset: [mcp-servers, ai-promises, ai-models, elon-tweets, blindspot-briefs, agent-networks, agent-wallets]
     steps:
       - uses: actions/checkout@v4
         with:

@@ -36,6 +36,18 @@
         "FRAME_AGENT": "claude:opus-4.7"
       }
     },
+    "frame-agent-wallets": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/agent-wallets"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
     "frame-blindspot-briefs": {
       "command": "npx",
       "args": [

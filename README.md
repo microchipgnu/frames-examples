@@ -22,6 +22,7 @@ Datasets, each in its own directory under `datasets/`:
 | [`blindspot-briefs`](datasets/blindspot-briefs) | Daily 8-section analytical briefs on yesterday's news. |
 | [`blindspot-threads`](datasets/blindspot-threads) | Non-obvious connections across each day's briefs. |
 | [`agent-networks`](datasets/agent-networks) | Open questions on the agent / machine-network economy, with rolling evidence. |
+| [`agent-wallets`](datasets/agent-wallets) | Live catalog of agent wallets, registries, and payment protocols + the services each one exposes. |
 
 Each dataset is a self-contained frame: `schema.yml` (the contract),
 `prompt.md` (the maintenance loop), `events.ndjson` (the append-only log),
