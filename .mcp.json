@@ -72,6 +72,18 @@
         "FRAME_AGENT": "claude:opus-4.7"
       }
     },
+    "frame-layoffs-2026": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@frames-ag/frame",
+        "serve",
+        "datasets/layoffs-2026"
+      ],
+      "env": {
+        "FRAME_AGENT": "claude:opus-4.7"
+      }
+    },
     "frame-elon-tweets": {
       "command": "npx",
       "args": [
